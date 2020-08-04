@@ -1,9 +1,11 @@
 package io.github.kimjh4930.springevents.user.application;
 
+import io.github.kimjh4930.springevents.user.domain.SignedUpEvent;
 import io.github.kimjh4930.springevents.user.domain.User;
 import io.github.kimjh4930.springevents.user.domain.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,13 +16,11 @@ public class UserService {
     private final static Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private UserRepository userRepository;
-    private MessageSender emailSender;
-    private MessageSender smsSender;
+    private ApplicationEventPublisher publisher;
 
-    public UserService(UserRepository userRepository, MessageSender emailSender, MessageSender smsSender) {
+    public UserService(final UserRepository userRepository, final ApplicationEventPublisher publisher) {
         this.userRepository = userRepository;
-        this.emailSender = emailSender;
-        this.smsSender = smsSender;
+        this.publisher = publisher;
     }
 
     public void join(final long id, final String name){
@@ -28,10 +28,10 @@ public class UserService {
         final User user = new User(id, name);
 
         logger.info("Join Step 2: Persistence");
+        System.out.println("userRepository : " + userRepository);
         userRepository.save(user);
 
-        emailSender.sendCongratulation(user.getName());
-        smsSender.sendCongratulation(user.getName());
+        publisher.publishEvent(new SignedUpEvent((user.getName())));
 
         logger.info("Join Step 5: Completed");
     }
