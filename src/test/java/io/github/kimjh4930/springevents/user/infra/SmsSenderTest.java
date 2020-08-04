@@ -1,6 +1,7 @@
 package io.github.kimjh4930.springevents.user.infra;
 
 import io.github.kimjh4930.springevents.user.application.MessageSender;
+import io.github.kimjh4930.springevents.user.domain.NotificationSettings;
 import io.github.kimjh4930.springevents.user.domain.SignedUpEvent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class SmsSenderTest {
 
     private static final String TEST_NAME = "Junha";
+    private static final NotificationSettings TEST_NOTIFICATION_SETTINGS = new NotificationSettings(true);
 
     @Autowired
     private MessageSender smsSender;
@@ -21,7 +23,7 @@ class SmsSenderTest {
         //given
         //when
         //then
-        smsSender.sendCongratulation(new SignedUpEvent(TEST_NAME));
+        smsSender.sendCongratulation(new SignedUpEvent(TEST_NAME, TEST_NOTIFICATION_SETTINGS));
     }
 
 }

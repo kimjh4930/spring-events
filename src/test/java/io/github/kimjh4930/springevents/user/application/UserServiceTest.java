@@ -1,31 +1,31 @@
 package io.github.kimjh4930.springevents.user.application;
 
+import io.github.kimjh4930.springevents.user.domain.NotificationSettings;
 import io.github.kimjh4930.springevents.user.domain.SignedUpEvent;
 import io.github.kimjh4930.springevents.user.domain.User;
 import io.github.kimjh4930.springevents.user.domain.UserRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.BDDMockito;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
+import javax.management.Notification;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
     private static final long TEST_ID = 1L;
     private static final String TEST_NAME = "Junha";
+    private static final boolean TEST_RECEIVING = true;
 
     @Mock private UserRepository userRepository;
     @Mock private ApplicationEventPublisher publisher;
@@ -43,11 +43,11 @@ class UserServiceTest {
     void join(){
         //given
         //when
-        userService.join(TEST_ID, TEST_NAME);
+        userService.join(TEST_ID, TEST_NAME, TEST_RECEIVING);
 
         //then
         verify(userRepository).save(any(User.class));
-        verifyPublishedEvents(new SignedUpEvent((TEST_NAME)));
+        verifyPublishedEvents(new SignedUpEvent(TEST_NAME, new NotificationSettings(TEST_RECEIVING)));
     }
 
     @DisplayName("회원조회")
@@ -55,7 +55,7 @@ class UserServiceTest {
     void findAll(){
         //given
         given(userRepository.findAll())
-            .willReturn(Arrays.asList(new User(TEST_ID, TEST_NAME)));
+            .willReturn(Arrays.asList(new User(TEST_ID, TEST_NAME, new NotificationSettings(TEST_RECEIVING))));
 
         //when
         final List<String> userNames = userService.lookup();

@@ -1,5 +1,6 @@
 package io.github.kimjh4930.springevents.user.application;
 
+import io.github.kimjh4930.springevents.user.domain.NotificationSettings;
 import io.github.kimjh4930.springevents.user.domain.SignedUpEvent;
 import io.github.kimjh4930.springevents.user.domain.User;
 import io.github.kimjh4930.springevents.user.domain.UserRepository;
@@ -7,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,15 +25,16 @@ public class UserService {
         this.publisher = publisher;
     }
 
-    public void join(final long id, final String name){
+    @Transactional
+    public void join(final long id, final String name, final boolean receiving){
         logger.info("Join Step 1: Beginning");
-        final User user = new User(id, name);
+        final User user = new User(id, name, new NotificationSettings((receiving)));
 
         logger.info("Join Step 2: Persistence");
         System.out.println("userRepository : " + userRepository);
         userRepository.save(user);
 
-        publisher.publishEvent(new SignedUpEvent((user.getName())));
+        publisher.publishEvent(new SignedUpEvent(user.getName(), user.getNotificationSettings()));
 
         logger.info("Join Step 5: Completed");
     }
